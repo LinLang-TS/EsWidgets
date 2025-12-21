@@ -278,12 +278,16 @@ void EsTableItemDelegate::_drawCheckBox(QPainter* painter, const QStyleOptionVie
         painter->setBrush(color);
         painter->drawRoundedRect(rect, r, r);
 
-        // todo 绘制选中状态
-        // if (checkState == Qt::Checked) {
-        //     CheckBoxIcon::ACCEPT.render(painter, rect);
-        // } else {  // 部分选中状态
-        //     CheckBoxIcon::PARTIAL_ACCEPT.render(painter, rect);
-        // }
+        // 绘制选中状态
+        if (checkState == Qt::Checked) {
+            auto ico = EsCheckBoxIcon(Es::IconName::IconCheckBox_Accept);
+            ico.render(painter, rect, {});
+        }
+        else // 部分选中状态
+        {
+            auto ico = EsCheckBoxIcon(Es::IconName::IconCheckBox_PartialAccept);
+            ico.render(painter, rect, {});
+        }
     }
 
     painter->restore();
