@@ -419,7 +419,10 @@ E_BEGIN_ENUM_CREATE(Es)
         FADE_IN_PULL_UP,
     };
 
-
+    enum ItemDataRole
+    {
+        ComboOptionsRole = Qt::UserRole + 1,
+    };
 
 
 E_END_ENUM_CREATE(Es)

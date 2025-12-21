@@ -278,7 +278,7 @@ public:
      *
      * 如果菜单已经存在，则关闭；否则显示下拉菜单。
      */
-    void _toggleComboMenu();
+    void toggleComboMenu();
 
     /**
      * @brief 处理组合框某个条目被点击事件
@@ -303,6 +303,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent* e) override;
     void paintEvent(QPaintEvent* e) override;
     // ==
+public:
+    EsComboBoxMenu* dropMenu; ///< 展开的选项
 };
 
 

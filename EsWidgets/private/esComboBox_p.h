@@ -29,7 +29,6 @@ public:
     bool isHover;
     bool isPressed;
     QList<EsComboItem*> items;
-    EsComboBoxMenu* dropMenu;
     int maxVisibleItems;
     EsTranslateYAnimation* arrowAni;
     QString placeholderText;

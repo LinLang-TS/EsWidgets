@@ -133,7 +133,9 @@ public:
     //     // 调用tooltipDelegate的helpEvent方法
     //     return tooltipDelegate->helpEvent(event, view, option, index);
     // }
-
+protected:
+    bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option,
+        const QModelIndex& index) override;
 };
 
 

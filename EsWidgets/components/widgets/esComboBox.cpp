@@ -88,7 +88,6 @@ EsComboBoxPrivate::EsComboBoxPrivate(QObject* parent)
       items(),
       currentIndex(-1),
       maxVisibleItems(-1),
-      dropMenu(nullptr),
       placeholderText("")
 
 {
@@ -109,7 +108,7 @@ void EsComboBoxPrivate::updateTextState(bool isPlaceholder)
 // region ================= EsComboBox  =================
 
 EsComboBox::EsComboBox(QWidget* parent)
-    : QPushButton(parent), d_ptr(new EsComboBoxPrivate())
+    : QPushButton(parent), dropMenu(nullptr), d_ptr(new EsComboBoxPrivate())
 {
     Q_D(EsComboBox);
     d->q_ptr = this;
@@ -398,11 +397,11 @@ int EsComboBox::maxVisibleItems() const
 void EsComboBox::_closeComboMenu()
 {
     Q_D(EsComboBox);
-    if (!d->dropMenu)
+    if (!dropMenu)
         return;
 
 
-    d->dropMenu = nullptr;
+    dropMenu = nullptr;
 }
 
 EsComboBoxMenu* EsComboBox::_createComboMenu()
@@ -417,10 +416,10 @@ void EsComboBox::_onDropMenuClosed()
     QPoint pos = mapFromGlobal(QCursor::pos());
     if (!rect().contains(pos))
     {
-        d->dropMenu = nullptr;
+        dropMenu = nullptr;
     }
 #else
-    d->dropMenu = nullptr;
+    dropMenu = nullptr;
 #endif
 }
 
@@ -449,7 +448,7 @@ void EsComboBox::_showComboMenu()
     menu->setMaxVisibleItems(maxVisibleItems());
     menu->setAttribute(Qt::WA_DeleteOnClose);
     connect(menu, &EsComboBoxMenu::closedSignal, this, &EsComboBox::_onDropMenuClosed);
-    d->dropMenu = menu;
+    dropMenu = menu;
 
     // 设置当前选中项
     if (currentIndex() >= 0 && !d->items.empty())
@@ -477,10 +476,10 @@ void EsComboBox::_showComboMenu()
     }
 }
 
-void EsComboBox::_toggleComboMenu()
+void EsComboBox::toggleComboMenu()
 {
     Q_D(EsComboBox);
-    if (d->dropMenu)
+    if (dropMenu)
     {
         _closeComboMenu();
     }
@@ -554,7 +553,7 @@ void EsComboBox::_updateTextState(bool isPlaceholder)
 void EsComboBox::mouseReleaseEvent(QMouseEvent* e)
 {
     QPushButton::mouseReleaseEvent(e);
-    _toggleComboMenu();
+    toggleComboMenu();
 }
 
 void EsComboBox::paintEvent(QPaintEvent* e)

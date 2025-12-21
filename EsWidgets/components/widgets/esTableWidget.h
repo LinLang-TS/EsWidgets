@@ -43,6 +43,15 @@ public :
     void setCurrentItem(QTableWidgetItem* item, QItemSelectionModel::SelectionFlags command = nullptr);
 
     /**
+     * 设置 item 为 EsComboBox, 并添加选项
+     *
+     * @param item 单元格项
+     * @param options EsComboBox的选项
+     * @param defaultText (可选) 单元格项显示的默认文本
+     */
+    void setItemComBoBox(QTableWidgetItem* item, const QStringList& options, const QString& defaultText={});
+
+    /**
      * 获取右键点击的行是否被选中
      *
      * @return 是否为右键点击选中的行
@@ -56,9 +65,6 @@ public :
      */
     void setSelectRightClickedRow(bool isSelect);
 
-
-
-    // ===
 
     /**
     * 设置边框的可见性

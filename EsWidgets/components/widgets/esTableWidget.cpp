@@ -131,6 +131,17 @@ void EsTableWidget::setCurrentItem(QTableWidgetItem* item, QItemSelectionModel::
     updateSelectedRows();
 }
 
+void EsTableWidget::setItemComBoBox(QTableWidgetItem* item, const QStringList& options, const QString& defaultText)
+{
+    item->setData(Es::ComboOptionsRole, options);
+
+    if (!defaultText.isEmpty())
+    {
+        item->setText(defaultText);
+    }
+}
+
+
 bool EsTableWidget::isSelectRightClickedRow() const
 {
     Q_D(const EsTableWidget);

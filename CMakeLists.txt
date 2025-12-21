@@ -197,16 +197,16 @@ else ()
 endif ()
 
 
-add_library(${PROJECT_NAME} ${libType}
-        ${esPublicHeaders}
-        ${esSources}
-)
-# 测试源码编译Gui(自己测试用的, 没规范写示例, 凑合看...)
-#add_executable(${PROJECT_NAME}
+#add_library(${PROJECT_NAME} ${libType}
 #        ${esPublicHeaders}
 #        ${esSources}
-#        examples/main.cpp
 #)
+# 测试源码编译Gui(自己测试用的, 没规范写示例, 凑合看...)
+add_executable(${PROJECT_NAME}
+        ${esPublicHeaders}
+        ${esSources}
+        examples/main.cpp
+)
 
 #### ------------------------------ 编译后的文件配置 ------------------------------
 ######## 输出目录

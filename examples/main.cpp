@@ -184,7 +184,7 @@ public:
         tableView->setColumnCount(5);
         QList<QList<QString>> songInfos = {
             {"かばん", "aiko", "かばん", "2004", "5:04"},
-            {"かばん", "aiko", "かばん", "2004", "5:04"},
+            {"かばん", "", "かばん", "2004", "5:04"},
             {"かばん", "aiko", "かばん", "2004", "5:04"},
             {"かばん", "aiko", "かばん", "2004", "5:04"},
             {"かばん", "aiko", "かばん", "2004", "5:04"},
@@ -204,7 +204,20 @@ public:
         {
             for (int j = 0; j < songInfos[i].size(); ++j)
             {
-                tableView->setItem(i, j, new QTableWidgetItem(songInfos[i][j]));
+                auto item = new QTableWidgetItem(songInfos[i][j]);
+                if (i == 1 && j == 1)
+                {
+                    tableView->setItemComBoBox(item, QStringList{"item1", "item2", "item3", "item4"});
+                }
+                if (i == 1 && j == 2)
+                {
+                    tableView->setItemComBoBox(item, QStringList{"item1", "item2", "item3", "item4"}, "item2");
+                }
+                if (i == 1 && j == 3)
+                {
+                    tableView->setItemComBoBox(item, QStringList{"item1", "item2", "item3", "item4"}, "默认");
+                }
+                tableView->setItem(i, j, item);
             }
         }
         tableView->verticalHeader()->hide();
@@ -245,8 +258,8 @@ int main(int argc, char* argv[])
     qDebug()<<wid.size();
 
 
-    // TableDemo demo;
-    // demo.show();
+    TableDemo demo;
+    demo.show();
     return QApplication::exec();
 }
 

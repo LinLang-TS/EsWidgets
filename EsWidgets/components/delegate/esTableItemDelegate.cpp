@@ -18,6 +18,8 @@
 #include "esFont.h"
 #include "esIcon.h"
 #include "widgets/esLineEdit.h"
+#include "widgets/esComboBox.h"
+#include "widgets/esRoundMenu.h"
 
 
 EsTableItemDelegate::EsTableItemDelegate(QObject* parent)
@@ -68,7 +70,13 @@ QSize EsTableItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QM
 QWidget* EsTableItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option,
     const QModelIndex& index) const
 {
+    //  EsComboBox 单元格：禁止进入编辑态
+    if (index.data(Es::ComboOptionsRole).isValid())
+    {
+        return nullptr;
+    }
 
+    // 普通文本单元格：使用 EsLineEdit 编辑
     auto lineEdit = new EsLineEdit(parent);
     lineEdit->setProperty("transparent", false);
     lineEdit->setStyle(QApplication::style());
@@ -241,6 +249,28 @@ void EsTableItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
         _drawCheckBox(painter, adjustedOption, index);
     }
 
+    // 绘制选择框的箭头
+    var = index.data(Es::ComboOptionsRole);
+    if (var.isValid() && !var.isNull())
+    {
+        QRectF rect(
+              adjustedOption.rect.right() - 16, // 距右边留 16 像素
+              adjustedOption.rect.center().y() - 5, // 垂直居中
+              10,
+              10
+          );
+        // qDebug()<<var; // QVariant(QStringList, ("选项1", "选项2", "选项3"))
+        auto ico = EsIcon(Es::Icon_ChevronDown); // ARROW_DOWN
+
+        if (EsFunc::isDarkTheme())
+        {
+            ico.render(painter, rect , {});
+        } else
+        {
+            ico.render(painter, rect, {}, {{"fill", "#646464"}});
+        }
+
+    }
     painter->restore();
 
     // 调用父类的绘制方法
@@ -291,4 +321,48 @@ void EsTableItemDelegate::_drawCheckBox(QPainter* painter, const QStyleOptionVie
     }
 
     painter->restore();
+}
+
+bool EsTableItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option,
+    const QModelIndex& index)
+{
+    auto var = index.data(Es::ComboOptionsRole);
+    // 如果未标记为 ComboBox 则保持默认
+    if (!var.isValid() || var.isNull())
+    {
+        return QStyledItemDelegate::editorEvent(event, model, option, index);
+    }
+
+    // 单击单元格
+    if (event->type() == QEvent::MouseButtonRelease)
+    {
+
+        auto options = var.toStringList();
+        auto view = qobject_cast<QAbstractItemView*>(parent());
+        auto combo = new EsComboBox(view->viewport()); // 必须用他为父类, 直接用(QWidget*)parent()的话, comboBox会出现在上面一行的单元格里
+
+        combo->addItems(var.toStringList());
+        const int currentIndex = options.indexOf(index.data(Qt::DisplayRole).toString());
+        if (currentIndex >= 0)
+        {
+            combo->setCurrentIndex(currentIndex);
+        }
+
+
+        combo->setGeometry(option.rect);
+        combo->toggleComboMenu();   // 显示选择框
+
+        // 选择框关闭后释放combo并更新单元格文本
+        QObject::connect(combo, &EsComboBox::activated, [model, index, combo](int idx){
+            model->setData(index, combo->itemText(idx), Qt::DisplayRole);
+            combo->deleteLater();
+        });
+        if (combo->dropMenu)
+        {
+            QObject::connect(combo->dropMenu, &EsRoundMenu::closedSignal, combo, &QObject::deleteLater);
+        }
+
+        return true;
+    }
+
 }
