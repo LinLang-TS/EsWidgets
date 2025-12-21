@@ -1,0 +1,20 @@
+QWidget {
+    background-color: transparent;
+}
+
+EsSwitchButton {
+    qproperty-spacing: 12;
+    background-color: transparent;
+}
+
+EsSwitchButton>QLabel {
+    font: 14px --FontFamilies;
+    color: white;
+    background-color: transparent;
+    border: none;
+}
+
+EsSwitchButton>QLabel:disabled {
+    color: rgba(255, 255, 255, 0.36);
+}
+

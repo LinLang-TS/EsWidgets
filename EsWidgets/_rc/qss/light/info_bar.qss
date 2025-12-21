@@ -1,0 +1,47 @@
+EsInfoBar {
+    border: 1px solid rgb(229, 229, 229);
+    border-radius: 6px;
+    background-color: rgb(244, 244, 244);
+}
+
+#titleLabel {
+    font: 14px --FontFamilies;
+    font-weight: bold;
+    color: black;
+    background-color: transparent;
+}
+
+#contentLabel {
+    font: 14px --FontFamilies;
+    color: black;
+    background-color: transparent;
+}
+
+EsInfoBar[type="Info"] {
+    background-color: rgb(244, 244, 244);
+}
+
+EsInfoBar[type="Success"] {
+    background-color: rgb(223, 246, 221);
+}
+
+EsInfoBar[type="Warning"] {
+    background-color: rgb(255, 244, 206);
+}
+
+EsInfoBar[type="Error"] {
+    background-color: rgb(253, 231, 233);
+}
+
+InfoBarCloseButton {
+    background-color: transparent;
+    border-radius: 5px;
+}
+
+InfoBarCloseButton:hover {
+    background-color: rgba(0, 0, 0, 9);
+}
+
+InfoBarCloseButton:pressed {
+    background-color: rgba(0, 0, 0, 6);
+}
