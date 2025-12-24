@@ -419,6 +419,7 @@ E_BEGIN_ENUM_CREATE(Es)
         FADE_IN_PULL_UP,
     };
 
+    // 单元格组件类型
     enum ItemDataRole
     {
         ComboOptionsRole = Qt::UserRole + 1,

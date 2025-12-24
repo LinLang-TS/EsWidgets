@@ -38,6 +38,7 @@
 #include "widgets/esComboBox.h"
 #include "widgets/esListWidget.h"
 #include "widgets/esRoundMenu.h"
+#include "widgets/esTableWidgetComboBoxItem.h"
 #include "windows/esWindowBase.h"
 
 class MyClass : public QWidget
@@ -175,7 +176,10 @@ public:
     TableDemo()
     {
         tableView = new EsTableWidget(this);
+        auto btn = new EsPushButton("测试按钮", this);
         auto hBoxLayout = new QVBoxLayout(this);
+        hBoxLayout->addWidget(btn);
+        connect(btn, &EsPushButton::clicked, this, &TableDemo::on_btn_clickwed);
         tableView->setBorderVisible(true);
         tableView->setBorderRadius(8);
 
@@ -207,7 +211,12 @@ public:
                 auto item = new QTableWidgetItem(songInfos[i][j]);
                 if (i == 1 && j == 1)
                 {
-                    tableView->setItemComBoBox(item, QStringList{"item1", "item2", "item3", "item4"});
+                    auto itemCombo = new EsTableWidgetComboBoxItem(QStringList{"item1", "item2", "item3"});
+                    itemCombo->setPlaceholderText("测试");
+                    // itemCombo->setEditable(true);
+                    tableView->setItem(i, j, itemCombo);
+                    continue;
+                    // tableView->setItemComBoBox(item, QStringList{"item1", "item2", "item3", "item4"});
                 }
                 if (i == 1 && j == 2)
                 {
@@ -226,7 +235,12 @@ public:
         hBoxLayout->setContentsMargins(50, 30, 50, 30);
         hBoxLayout->addWidget(tableView);
     }
-
+    Q_SLOT void on_btn_clickwed()
+    {
+        auto item = (EsTableWidgetComboBoxItem*)tableView->item(1,1);
+        qDebug()<< "index: " << item->currentIndex();
+        item->disableOption(1);
+    }
 private:
     EsTableWidget* tableView;
 };
