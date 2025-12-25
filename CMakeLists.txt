@@ -60,6 +60,7 @@ set(esPublicHeaders
         EsWidgets/components/widgets/esMenuActionListWidget.h
         EsWidgets/components/widgets/esRoundMenu.h
         EsWidgets/components/widgets/esCompleterMenu.h
+        EsWidgets/components/widgets/esEditableComboBox.h
 
         # window
         EsWidgets/components/windows/esStackedWidget.h
@@ -129,7 +130,7 @@ set(esSources
         EsWidgets/components/widgets/esComboBox.cpp
         EsWidgets/components/widgets/esScrollArea.cpp
         EsWidgets/components/widgets/esCompleterMenu.cpp
-
+        EsWidgets/components/widgets/esEditableComboBox.cpp
         # esWidgets的私有头
         EsWidgets/private/esArrowButton_p.h
         EsWidgets/private/esCheckBox_p.h
@@ -153,6 +154,7 @@ set(esSources
         EsWidgets/private/esRoundMenu_p.h
         EsWidgets/private/esMenuActionListWidget_p.h
         EsWidgets/private/esComboBox_p.h
+        EsWidgets/private/esEditableComboBox_p.h
         # es无边框窗口
         EsWidgets/framelessWindow/esFramelessWindow_p.h
         EsWidgets/framelessWindow/esTitleBar_p.h

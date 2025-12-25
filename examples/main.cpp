@@ -24,7 +24,6 @@
 #include "button/esToolButton.h"
 #include "button/esTransparentPushButton.h"
 #include "button/esTransparentTogglePushButton.h"
-#include "private/esInfoBar_p.h"
 #include "widgets/esCheckBox.h"
 #include "widgets/esInfoBar.h"
 #include "widgets/esLineEdit.h"
@@ -37,6 +36,7 @@
 #include "esConfig.h"
 #include "private/esRoundMenu_p.h"
 #include "widgets/esComboBox.h"
+#include "widgets/esEditableComboBox.h"
 #include "widgets/esListWidget.h"
 #include "widgets/esRoundMenu.h"
 #include "widgets/esTableWidgetComboBoxItem.h"
@@ -69,6 +69,10 @@ public:
         combox->addItem("测试1");
         combox->addItem("测试2");
         combox->addItem("测试3");
+        editCombox = new EsEditableComboBox(this);
+        editCombox->addItem("测试1");
+        editCombox->addItem("测试2");
+        editCombox->addItem("测试3");
         auto a = new EsTableWidget(5, 6);
         auto let = new EsLineEdit();
         connect(btn1, SIGNAL(clicked()), SLOT(on_btn1_clicked()));
@@ -93,6 +97,7 @@ public:
         layout->addWidget(btn8);
         layout->addWidget(listWidget);
         layout->addWidget(combox);
+        layout->addWidget(editCombox);
         layout->addWidget(let);
         layout->addWidget(a);
 
@@ -167,6 +172,7 @@ public:
     EsSwitchButton* btn8;
     EsListWidget* listWidget;
     EsComboBox* combox;
+    EsEditableComboBox* editCombox;
 
     ~MyClass() override
     {

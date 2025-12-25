@@ -1,0 +1,291 @@
+/****************************************************************************
+** @brief 这家伙很懒, 什么都没写
+** @details 这家伙很懒, 什么都没写
+** @file esEditableComboBox.h
+** @date 2025/12/25
+** @author 瑶瑶
+** @copyright (C) 2024 瑶瑶. All rights reserved.
+****************************************************************************/
+
+#ifndef ESWIDGETS_ESEDITABLECOMBOBOX_H
+#define ESWIDGETS_ESEDITABLECOMBOBOX_H
+#include "esLineEdit.h"
+
+
+class EsComboBoxMenu;
+class EsEditableComboBoxPrivate;
+
+class ES_EXPORT EsEditableComboBox : public EsLineEdit
+{
+    Q_OBJECT
+    E_Q_CREATE_PIMPL(EsEditableComboBox)
+Q_SIGNALS:
+    void currentIndexChanged(int);
+    void currentTextChanged(QString);
+    void activated(int);
+    void textActivated(QString);
+
+public:
+    explicit EsEditableComboBox(QWidget* parent = nullptr);
+    /**
+     * @brief 添加一项
+     *
+     * @param text 项目文本
+     * @param icon 项目图标，可以为 QString、QIcon 或 EsIconBase
+     * @param userData 用户数据
+     */
+    void addItem(const QString& text, const QVariant& icon = {}, const QVariant& userData = {});
+
+    /**
+     * @brief 批量添加项目
+     *
+     * @param texts 字符串可迭代对象，每个元素为项目文本
+     */
+    void addItems(const QList<QString>& texts);
+
+
+    /**
+     * @brief 移除指定索引的项目，并在必要时更新当前索引
+     *
+     * @param index 要移除的项目索引
+     */
+    void removeItem(int index);
+
+    int currentIndex() const;
+
+    /**
+     * @brief 设置当前索引
+     *
+     * 设置组件的当前索引。如果传入的索引超出范围，或与当前索引相同，
+     * 则本函数不会执行任何操作。
+     *
+     * @param index 当前索引值
+     */
+    void setCurrentIndex(int index);
+
+    void setText(const QString& text);
+
+    /**
+     * @brief 获取当前条目的文本
+     *
+     * 如果当前索引无效（越界），则返回空字符串；
+     * 否则返回当前索引对应条目的文本内容。
+     *
+     * @return 当前文本
+     */
+    QString currentText() const;
+
+    /**
+     * @brief 获取当前条目的用户数据
+     *
+     * 若当前索引无效（越界），则返回 nullptr；
+     * 否则返回当前索引对应条目的 userData。
+     *
+     * @return 当前条目的用户数据
+     */
+    QVariant currentData() const;
+
+    /**
+     * @brief 设置当前显示的文本（需存在于条目列表中）
+     *
+     * 若传入的文本与当前文本相同，则不进行任何操作。
+     * 若文本在条目列表中存在，则切换到对应的索引。
+     *
+     * @param text 要在组合框中显示的文本
+     */
+    void setCurrentText(const QString& text);
+
+    /**
+     * @brief 设置指定索引条目的文本
+     *
+     * @param index 条目索引
+     * @param text 新的文本内容
+     */
+    void setItemText(int index, const QString& text);
+
+    /**
+     * @brief 获取指定索引条目的用户数据
+     *
+     * @param index 条目索引
+     * @return QVariant 对应的用户数据，如果索引非法则返回空 QVariant
+     */
+    QVariant itemData(int index) const;
+
+    /**
+     * @brief 获取指定索引条目的文本
+     *
+     * @param index 条目索引
+     * @return QString 对应的文本，如果索引非法则返回空字符串
+     */
+    QString itemText(int index) const;
+
+    /**
+     * @brief 获取指定索引条目的图标
+     *
+     * @param index 条目索引
+     * @return QIcon 对应的图标，如果索引非法则返回空图标
+     */
+    QIcon itemIcon(int index) const;
+
+    /**
+     * @brief 设置指定索引条目的用户数据
+     *
+     * @param index 条目索引
+     * @param value 用户数据
+     */
+    void setItemData(int index, const QVariant& value);
+
+    /**
+     * @brief 设置指定索引条目的图标
+     *
+     * @param index 条目索引
+     * @param icon 条目图标，可为 QIcon 或自定义图标类型
+     */
+    void setItemIcon(int index, const QIcon& icon);
+
+    /**
+     * @brief 设置指定索引条目的可用状态
+     *
+     * @param index 条目索引
+     * @param isEnabled 是否可用
+     */
+    void setItemEnabled(int index, bool isEnabled);
+
+    /**
+     * @brief 查找指定数据对应的条目索引
+     *
+     * @param data 要查找的数据
+     * @return 条目索引，未找到返回 -1
+     */
+    int findData(const QVariant& data) const;
+
+    /**
+     * @brief 查找指定文本对应的条目索引
+     *
+     * @param text 要查找的文本
+     * @return 条目索引，未找到返回 -1
+     */
+    int findText(const QString& text) const;
+
+    /**
+     * @brief 清空组合框，移除所有条目
+     */
+    void clear();
+
+    /**
+     * @brief 返回组合框中的条目数量
+     * @return 条目数量
+     */
+    int count() const;
+
+    /**
+     * @brief 在指定索引处插入条目
+     *
+     * @param index 插入位置
+     * @param text 条目文本
+     * @param icon 条目图标，可以是 QString, QIcon 或 EsIconBase
+     * @param userData 用户自定义数据
+     */
+    void insertItem(int index, const QString& text, const QVariant& icon = QVariant(),
+                           const QVariant& userData = QVariant());
+
+    /**
+     * @brief 从指定索引开始插入多个条目
+     *
+     * @param index 插入起始位置
+     * @param texts 条目文本列表
+     */
+    void insertItems(int index, const QList<QString>& texts);
+
+    /**
+     * @brief 设置下拉框最大可见条目数
+     *
+     * @param num 最大可见条目数
+     */
+    void setMaxVisibleItems(int num);
+
+    /**
+     * @brief 获取下拉框最大可见条目数
+     * @return int 最大可见条目数
+     */
+    int maxVisibleItems() const;
+
+    /**
+     * @brief 关闭下拉菜单
+     *
+     * 如果下拉菜单存在，则尝试关闭它，并将 dropMenu 设置为 nullptr。
+     * 防止下拉菜单已被删除时产生异常。
+     */
+    void _closeComboMenu();
+
+    /**
+     * @brief 创建组合框下拉菜单
+     *
+     * @return ComboBoxMenu* 返回新创建的下拉菜单对象，父对象为当前组合框
+     */
+    EsComboBoxMenu* _createComboMenu();
+
+
+
+    /**
+     * @brief 显示组合框下拉菜单
+     *
+     * 根据当前 ComboBox 的 items 创建菜单，并显示带动画的下拉或上拉菜单。
+     */
+    void _showComboMenu();
+
+    /**
+     * @brief 切换组合框下拉菜单显示状态
+     *
+     * 如果菜单已经存在，则关闭；否则显示下拉菜单。
+     */
+    void toggleComboMenu();
+
+    /**
+     * @brief 处理组合框某个条目被点击事件
+     *
+     * @param index 点击的条目索引
+     *
+     * 如果点击的索引与当前索引不同，则更新当前索引，并触发 activated 和 textActivated 信号。
+     */
+    void _onItemClicked(int index);
+
+    bool eventFilter(QObject* obj, QEvent* e) override;
+
+    void setCompleterMenu(EsCompleterMenu* menu) override;
+
+    void onActivated(const QString& text);
+
+    QString currentText();
+
+    void setPlaceholderText(const QString& text);
+
+    /**
+     * @brief 处理当回车键被按下时的操作
+     *
+     * 如果文本框有内容，尝试查找文本并更新当前索引，若未找到，则添加该文本作为新条目。
+     */
+    Q_SLOT void _onReturnPressed();
+
+    /**
+     * @brief 处理组合框文本变化时的操作
+     *
+     * 当文本变化时，更新当前索引并触发相关信号。
+     *
+     * @param text 新文本
+     */
+    Q_SLOT void _onComboTextChanged(const QString &text);
+
+    /// 下拉菜单关闭事件处理
+    Q_SLOT void _onDropMenuClosed();
+
+    /// 清除按钮点击事件
+    Q_SLOT void _onClearButtonClicked();
+
+public:
+    EsComboBoxMenu* dropMenu; ///< 展开的选项
+    EsLineEditButton* dropButton;
+};
+
+
+#endif //ESWIDGETS_ESEDITABLECOMBOBOX_H
