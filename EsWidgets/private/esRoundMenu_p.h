@@ -491,7 +491,6 @@ public:
     QListWidgetItem* lastHoverItem; ///< 上次悬停的项
     QListWidgetItem* lastHoverSubMenuItem; ///< 上次悬停的子菜单项
     bool isHideBySystem;
-    int itemHeight; ///< 菜单项高度
     QHBoxLayout* hBoxLayout;
     QTimer* timer;
     EsMenuAnimationManager* aniManager;

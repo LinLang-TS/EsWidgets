@@ -388,7 +388,6 @@ EsRoundMenuPrivate::EsRoundMenuPrivate(QObject* parent)
       lastHoverItem(nullptr),
       lastHoverSubMenuItem(nullptr),
       isHideBySystem(true),
-      itemHeight(28),
       aniManager(nullptr)
 {
 }
@@ -432,6 +431,7 @@ EsRoundMenu::EsRoundMenu(const QString& title, QWidget* parent)
     : QMenu(parent),
       menuItem(nullptr),
       parentMenu(nullptr),
+      itemHeight(28),
       d_ptr(new EsRoundMenuPrivate())
 {
     Q_D(EsRoundMenu);
@@ -463,10 +463,10 @@ void EsRoundMenu::setMaxVisibleItems(int num)
 void EsRoundMenu::setItemHeight(int height)
 {
     Q_D(EsRoundMenu);
-    if (height == d->itemHeight)
+    if (height == itemHeight)
         return;
 
-    d->itemHeight = height;
+    itemHeight = height;
     view->setItemHeight(height);
 }
 
@@ -666,7 +666,7 @@ int EsRoundMenu::_adjustItemText(QListWidgetItem* item, EsAction* action)
         w = 60 + fm.width(item->text()) + sw + space;
     }
 
-    item->setSizeHint(QSize(w, d->itemHeight));
+    item->setSizeHint(QSize(w, itemHeight));
     return w;
 }
 
@@ -895,7 +895,7 @@ QPair<QListWidgetItem*, EsSubMenuItemWidget*> EsRoundMenuPrivate::_createSubMenu
     // 设置父菜单和列表项关联
     menu->_setParentMenu(q, item);
 
-    item->setSizeHint(QSize(wWidth, itemHeight));
+    item->setSizeHint(QSize(wWidth, q->itemHeight));
     item->setData(Qt::UserRole, QVariant::fromValue(menu));
 
     EsSubMenuItemWidget* w = new EsSubMenuItemWidget(menu, item, q);

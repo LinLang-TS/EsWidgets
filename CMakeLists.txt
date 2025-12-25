@@ -59,6 +59,7 @@ set(esPublicHeaders
         EsWidgets/components/widgets/esTableWidgetComboBoxItem.h
         EsWidgets/components/widgets/esMenuActionListWidget.h
         EsWidgets/components/widgets/esRoundMenu.h
+        EsWidgets/components/widgets/esCompleterMenu.h
 
         # window
         EsWidgets/components/windows/esStackedWidget.h
@@ -127,6 +128,8 @@ set(esSources
         EsWidgets/components/widgets/esRoundMenu.cpp
         EsWidgets/components/widgets/esComboBox.cpp
         EsWidgets/components/widgets/esScrollArea.cpp
+        EsWidgets/components/widgets/esCompleterMenu.cpp
+
         # esWidgets的私有头
         EsWidgets/private/esArrowButton_p.h
         EsWidgets/private/esCheckBox_p.h

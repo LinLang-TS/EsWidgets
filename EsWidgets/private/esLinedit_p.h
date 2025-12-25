@@ -47,7 +47,7 @@ public:
     void showCompleterMenu();
     bool isClearButtonEnabled;
     QCompleter* completer;
-    // EsCompleterMenu* completerMenu; // todo EsCompleterMenu
+    EsCompleterMenu* completerMenu;
     bool isError;
 
     QColor lightFocusedBorderColor;

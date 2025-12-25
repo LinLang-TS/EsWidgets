@@ -87,7 +87,7 @@ public:
     QMargins viewportMargins() const;
     void setViewportMargins(int left, int top, int right, int bottom);
 
-
+    bool event(QEvent* e) override;
 };
 Q_DECLARE_METATYPE(EsMenuActionListWidget*)
 

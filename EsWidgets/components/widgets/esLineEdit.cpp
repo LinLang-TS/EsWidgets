@@ -17,6 +17,7 @@
 #include <QPainterPath>
 
 #include "esColor.h"
+#include "esCompleterMenu.h"
 #include "esFont.h"
 #include "esIcon.h"
 #include "esStyleSheet.h"
@@ -52,38 +53,37 @@ void EsLineEditPrivate::onTextEdited(const QString& text)
     Q_Q(EsLineEdit);
     if (!completer) return;
 
-    // if (!text.isEmpty())
-    // {
-    //     QTimer::singleShot(50, showCompleterMenu);
-    // }
-    // else if (completerMenu) // todo EsCompleterMenu
-    // {
-    //     completerMenu->close();
-    // }
+    if (!text.isEmpty())
+    {
+        QTimer::singleShot(50, this, &EsLineEditPrivate::showCompleterMenu);
+    }
+    else if (completerMenu)
+    {
+        completerMenu->close();
+    }
 }
 
 void EsLineEditPrivate::showCompleterMenu()
 {
-    // todo
-    // Q_Q(EsLineEdit);
-    // if (!completer || q->text().isEmpty()) {
-    //     return;
-    // }
-    //
-    // // 创建菜单
-    // if (!completerMenu) {
-    //     setCompleterMenu(new CompleterMenu(this));
-    // }
-    //
-    // // 设置菜单项
-    // completer->setCompletionPrefix(q->text());
-    // bool changed = completerMenu->setCompletion(completer->completionModel(), completer->completionColumn());
-    // completerMenu->setMaxVisibleItems(completer->maxVisibleItems());
-    //
-    // // 显示菜单
-    // if (changed) {
-    //     completerMenu->popup();
-    // }
+    Q_Q(EsLineEdit);
+    if (!completer || q->text().isEmpty()) {
+        return;
+    }
+
+    // 创建菜单
+    if (!completerMenu) {
+        q->setCompleterMenu(new EsCompleterMenu(q));
+    }
+
+    // 设置菜单项
+    completer->setCompletionPrefix(q->text());
+    bool changed = completerMenu->setCompletion(completer->completionModel(), completer->completionColumn());
+    completerMenu->setMaxVisibleItems(completer->maxVisibleItems());
+
+    // 显示菜单
+    if (changed) {
+        completerMenu->popup();
+    }
 }
 
 // endregion
@@ -97,7 +97,7 @@ EsLineEdit::EsLineEdit(QWidget* parent)
     d->q_ptr = this;
     d->isClearButtonEnabled = false;
     d->completer = nullptr;
-    // d->completerMenu = nullptr  // todo
+    d->completerMenu = nullptr;
     d->isError = false;
 
 
@@ -220,6 +220,16 @@ void EsLineEdit::addActions(const QList<QAction*>& actions, QLineEdit::ActionPos
     {
         addAction(action, position);
     }
+}
+
+void EsLineEdit::setCompleterMenu(EsCompleterMenu* menu)
+{
+    Q_D(EsLineEdit);
+    connect(menu, &EsCompleterMenu::activated, d->completer, static_cast<void(QCompleter::*)(const QString&)>(&QCompleter::activated));
+    connect(menu, &EsCompleterMenu::indexActivated, this, [=](const QModelIndex& idx) {
+        emit d->completer->activated(idx);
+    });
+    d->completerMenu = menu;
 }
 
 

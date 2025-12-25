@@ -181,4 +181,9 @@ void EsMenuActionListWidget::setViewportMargins(int left, int top, int right, in
     QListWidget::setViewportMargins(left, top, right, bottom);
 }
 
+bool EsMenuActionListWidget::event(QEvent* e)
+{
+    return QListWidget::event(e);
+}
+
 // endregion

@@ -255,11 +255,12 @@ protected:
      * @return int 计算后的宽度
      */
     int _adjustItemText(QListWidgetItem* item, EsAction* action);
+
     /**
      * @brief 处理菜单项点击事件
      * @param item 被点击的 QListWidgetItem
      */
-    Q_SLOT void _onItemClicked(QListWidgetItem* item);
+    Q_SLOT virtual void _onItemClicked(QListWidgetItem* item);
 
 
     /**
@@ -273,6 +274,7 @@ protected:
 public:
     QListWidgetItem* menuItem;
     EsRoundMenu* parentMenu;
+    int itemHeight; ///< 菜单项高度
 
     EsMenuActionListWidget* view;
 };

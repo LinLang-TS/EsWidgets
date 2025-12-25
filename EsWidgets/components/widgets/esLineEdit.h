@@ -13,6 +13,7 @@
 #include <QLineEdit>
 #include "esDef.h"
 
+class EsCompleterMenu;
 class QHBoxLayout;
 class EsLineEditPrivate;
 class EsLineEditButton;
@@ -92,14 +93,7 @@ public:
      * 设置自动补全菜单
      * @param menu CompleterMenu 对象
      */
-    // todo void setCompleterMenu(CompleterMenu* menu) {
-    //     connect(menu, &CompleterMenu::activated, this->_completer, &QCompleter::activated);
-    //     connect(menu, &CompleterMenu::indexActivated, this, [this](const QModelIndex& idx) {
-    //         emit this->_completer->activated(idx);
-    //     });
-    //     _completerMenu = menu;
-    // }
-
+    virtual void setCompleterMenu(EsCompleterMenu* menu);
 
 protected:
     /**

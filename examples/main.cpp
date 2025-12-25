@@ -31,6 +31,7 @@
 #include "widgets/esTableWidget.h"
 // #include <vld.h>
 
+#include <QCompleter>
 #include <QWindow>
 
 #include "esConfig.h"
@@ -72,7 +73,14 @@ public:
         auto let = new EsLineEdit();
         connect(btn1, SIGNAL(clicked()), SLOT(on_btn1_clicked()));
         connect(btn2, SIGNAL(clicked()), SLOT(on_btn2_clicked()));
-
+        QStringList wordList;
+        wordList << "apple" << "banana" << "cherry" << "date" << "fig";
+        completer = new QCompleter(wordList, this);
+        completer->setCaseSensitivity(Qt::CaseInsensitive);
+        completer->setMaxVisibleItems(10);
+        completer->setCompletionRole(Qt::DisplayRole);
+        completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion); // 显示全部item
+        let->setCompleter(completer);
         auto layout = new QVBoxLayout();
         layout->addStretch();
         layout->addWidget(btn1);
@@ -165,7 +173,7 @@ public:
         qDebug() << "~MyClass()";
     }
 
-    QWidget* completer;
+    QCompleter* completer;
 };
 
 class TableDemo : public EsWidget
