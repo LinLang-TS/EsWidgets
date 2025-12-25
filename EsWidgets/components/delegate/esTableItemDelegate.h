@@ -14,6 +14,8 @@
 #include <QStyledItemDelegate>
 #include <QSet>
 
+#include "widgets/esTableWidgetComboItem.h"
+
 
 class ES_EXPORT EsTableItemDelegate : public QStyledItemDelegate
 {
@@ -136,6 +138,44 @@ public:
 protected:
     bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option,
         const QModelIndex& index) override;
+private:
+    template <typename T>
+    void initComboBox(T combo,  const EsTableWidgetComboItemData& cfg, const QString& itemText) const
+    {
+        combo->addItems(cfg.options);
+
+        if (cfg.editable)
+        {
+            // 提示文本; 目前单击时方案是不显示combo, 所以只有在双击可编辑时才需要设置这个
+            if (!cfg.placeholderText.isEmpty())
+            {
+                combo->setPlaceholderText(cfg.placeholderText);
+            }
+        }
+
+
+        // 最大显示项数
+        if (cfg.maxVisibleItems > 0)
+        {
+            combo->setMaxVisibleItems(cfg.maxVisibleItems);
+        }
+
+        // 当前选中项同步; 优先 cfg.currentIndex，其次 DisplayRole
+        int indexToSelect = cfg.currentIndex;
+
+        if (indexToSelect < 0)
+        {
+            indexToSelect = cfg.options.indexOf(itemText);
+        }
+
+        combo->setCurrentIndex(indexToSelect >= 0 ? indexToSelect : -1);
+
+        // 禁用选项
+        for (int idx : cfg.disabledIndexes)
+        {
+            combo->setItemEnabled(idx, false);
+        }
+    }
 };
 
 

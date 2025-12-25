@@ -131,14 +131,9 @@ void EsTableWidget::setCurrentItem(QTableWidgetItem* item, QItemSelectionModel::
     updateSelectedRows();
 }
 
-void EsTableWidget::setItemComBoBox(QTableWidgetItem* item, const QStringList& options, const QString& defaultText)
+EsTableWidgetComboItem* EsTableWidget::itemCombo(int row, int column)
 {
-    item->setData(Es::ComboOptionsRole, options);
-
-    if (!defaultText.isEmpty())
-    {
-        item->setText(defaultText);
-    }
+    return dynamic_cast<EsTableWidgetComboItem*>(item(row, column));
 }
 
 

@@ -56,7 +56,7 @@ set(esPublicHeaders
         EsWidgets/components/widgets/esPopUpAniStackedWidget.h
         EsWidgets/components/widgets/esComboBox.h
         EsWidgets/components/widgets/esScrollArea.h
-        EsWidgets/components/widgets/esTableWidgetComboBoxItem.h
+        EsWidgets/components/widgets/esTableWidgetComboItem.h
         EsWidgets/components/widgets/esMenuActionListWidget.h
         EsWidgets/components/widgets/esRoundMenu.h
         EsWidgets/components/widgets/esCompleterMenu.h
@@ -164,7 +164,7 @@ set(esSources
         EsWidgets/framelessWindow/esTitleButtons.cpp
         EsWidgets/framelessWindow/esWin32Utils.cpp
         EsWidgets/framelessWindow/esWindowsWindowEffect.cpp
-        EsWidgets/components/widgets/esTableWidgetComboBoxItem.cpp
+        EsWidgets/components/widgets/esTableWidgetComboItem.cpp
 
 )
 

@@ -20,8 +20,9 @@
 #include "esIcon.h"
 #include "widgets/esLineEdit.h"
 #include "widgets/esComboBox.h"
+#include "widgets/esEditableComboBox.h"
 #include "widgets/esRoundMenu.h"
-#include "widgets/esTableWidgetComboBoxItem.h"
+#include "widgets/esTableWidgetComboItem.h"
 
 
 EsTableItemDelegate::EsTableItemDelegate(QObject* parent)
@@ -77,9 +78,14 @@ QWidget* EsTableItemDelegate::createEditor(QWidget* parent, const QStyleOptionVi
     if (auto var = index.data(Es::ComboOptionsRole); var.isValid())
     {
         // 禁止进入编辑态
-        if (var.value<TableWidgetComboBoxItemData>().editable == false) return nullptr;
+        if (var.value<EsTableWidgetComboItemData>().editable == false) return nullptr;
 
-        // todo 创建 EsEditableComboBox并显示
+        // 创建 EsEditableComboBox
+        const auto cfg = var.value<EsTableWidgetComboItemData>();
+
+        auto editableCombo = new EsEditableComboBox(parent);
+        initComboBox(editableCombo, cfg, option.text);
+        return editableCombo;
 
     }
 
@@ -342,7 +348,7 @@ bool EsTableItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, 
     }
 
 
-    const auto cfg = var.value<TableWidgetComboBoxItemData>();
+    const auto cfg = var.value<EsTableWidgetComboItemData>();
 
     // 如果 combo单元格 可编辑, 就走 createEditor 方法创建 editableComboBox
     // 返回false和调用基类差不多, 但是如果表格里有 checkbox , 返回false就无法切换他的选中状态;
@@ -362,45 +368,8 @@ bool EsTableItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, 
             if (!view) return false;
 
             // 创建 ComboBox
-            auto* combo = new EsComboBox(view->viewport());
-            combo->addItems(cfg.options);
-
-            // 提示文本; 目前单击时方案是不显示combo, 所以只有在双击可编辑时才需要设置这个
-            // if (!cfg.placeholderText.isEmpty())
-            // {
-            //     combo->setPlaceholderText(cfg.placeholderText);
-            // }
-
-            // 最大显示项数
-            if (cfg.maxVisibleItems > 0)
-            {
-                combo->setMaxVisibleItems(cfg.maxVisibleItems);
-            }
-
-            // 当前选中项同步; 优先 cfg.currentIndex，其次 DisplayRole
-            int indexToSelect = cfg.currentIndex;
-
-            if (indexToSelect < 0)
-            {
-                const QString text = index.data(Qt::DisplayRole).toString();
-                indexToSelect = cfg.options.indexOf(text);
-            }
-
-            if (indexToSelect >= 0)
-            {
-                combo->setCurrentIndex(indexToSelect);
-            }
-            else
-            {
-                // 不强制选中第一个
-                combo->setCurrentIndex(-1);
-            }
-
-            // 禁用选项
-            for (int idx : cfg.disabledIndexes)
-            {
-                combo->setItemEnabled(idx, false);
-            }
+            auto* combo = new EsComboBox(view->viewport()); // 必须传 view->viewport(), 直接传parent()会显示在上一行的单元格
+            initComboBox(combo, cfg, index.data().toString()); // 这个事件里option还没填充具体数据, 所以要从index里取文本
 
 
             // 选择后写回 Model
@@ -408,10 +377,15 @@ bool EsTableItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, 
                     model->setData(index, combo->itemText(idx), Qt::DisplayRole);
                     combo->deleteLater();
                 });
+
             // 关闭选择框后销毁
-            connect(combo->dropMenu, &EsRoundMenu::closedSignal, combo, &QObject::deleteLater);
+            if (combo->dropMenu)
+            {
+                connect(combo->dropMenu, &EsRoundMenu::closedSignal, combo, &QObject::deleteLater);
+            }
+
             // 单击时显示combo的方案; 目前使用的方案是单击时只显示选择框
-            // QString originalText = index.data(Qt::DisplayRole).toString();
+            // QString originalText = index.data().toString();
             // model->setData(index, QString(), Qt::DisplayRole);
             // connect(combo->dropMenu, &EsRoundMenu::closedSignal, combo, [model, index, originalText]()
             // {
@@ -429,4 +403,6 @@ bool EsTableItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, 
     }
     return QStyledItemDelegate::editorEvent(event, model, option, index);
 }
+
+
 

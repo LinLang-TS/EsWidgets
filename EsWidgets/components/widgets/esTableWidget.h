@@ -15,6 +15,7 @@
 
 class EsTableWidgetPrivate;
 class EsTableItemDelegate;
+class EsTableWidgetComboItem;
 
 class ES_EXPORT EsTableWidget : public QTableWidget
 {
@@ -42,14 +43,8 @@ public :
      */
     void setCurrentItem(QTableWidgetItem* item, QItemSelectionModel::SelectionFlags command = nullptr);
 
-    /**
-     * 设置 item 为 EsComboBox, 并添加选项
-     *
-     * @param item 单元格项
-     * @param options EsComboBox的选项
-     * @param defaultText (可选) 单元格项显示的默认文本
-     */
-    void setItemComBoBox(QTableWidgetItem* item, const QStringList& options, const QString& defaultText={});
+    /// 取 comboItem
+    EsTableWidgetComboItem* itemCombo(int row, int column);
 
     /**
      * 获取右键点击的行是否被选中
