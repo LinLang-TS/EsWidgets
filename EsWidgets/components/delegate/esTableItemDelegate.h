@@ -160,15 +160,9 @@ private:
             combo->setMaxVisibleItems(cfg.maxVisibleItems);
         }
 
-        // 当前选中项同步; 优先 cfg.currentIndex，其次 DisplayRole
-        int indexToSelect = cfg.currentIndex;
-
-        if (indexToSelect < 0)
-        {
-            indexToSelect = cfg.options.indexOf(itemText);
-        }
-
-        combo->setCurrentIndex(indexToSelect >= 0 ? indexToSelect : -1);
+        // 当前选中项同步;
+        int indexToSelect = cfg.options.indexOf(itemText);
+        combo->setCurrentIndex(indexToSelect);
 
         // 禁用选项
         for (int idx : cfg.disabledIndexes)

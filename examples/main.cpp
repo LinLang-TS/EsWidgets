@@ -225,7 +225,7 @@ public:
                 auto item = new QTableWidgetItem(songInfos[i][j]);
                 if (i == 1 && j == 1)
                 {
-                    auto itemCombo = new EsTableWidgetComboItem(QStringList{"item1", "item2", "item3"});
+                    auto itemCombo = new EsTableWidgetComboItem(QStringList{"item1", "item2", "item3"}, "item3");
                     itemCombo->setPlaceholderText("测试");
                     // itemCombo->setEditable(true);
                     tableView->setItem(i, j, itemCombo);
