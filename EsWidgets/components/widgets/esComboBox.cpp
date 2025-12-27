@@ -147,7 +147,7 @@ void EsComboBox::removeItem(int index)
         return;
     }
 
-    d->items.removeAt(index);
+    delete d->items.takeAt(index);
 
     if (index < currentIndex()) {
         setCurrentIndex(currentIndex() - 1);
@@ -342,8 +342,9 @@ void EsComboBox::clear()
     {
         setText("");
     }
-
-    d->items.clear();
+    while (!d->items.isEmpty()) {
+        delete d->items.takeLast();
+    }
     d->currentIndex = -1;
 }
 
