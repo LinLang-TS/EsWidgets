@@ -516,12 +516,11 @@ void EsEditableComboBox::_onComboTextChanged(const QString &text)
     d->currentIndex = -1;
     emit currentTextChanged(text);
 
-    for (int i = 0; i < d->items.size(); ++i) {
-        if (d->items[i]->text == text) {
-            d->currentIndex = i;
-            emit currentIndexChanged(i);
-            return;
-        }
+    int index = findText(text);
+    if (index >= 0)
+    {
+        d->currentIndex = index;
+        emit currentIndexChanged(index);
     }
 }
 
