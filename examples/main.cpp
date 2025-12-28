@@ -73,6 +73,7 @@ public:
         editCombox->addItem("测试1");
         editCombox->addItem("测试2");
         editCombox->addItem("测试3");
+        connect(editCombox, &EsEditableComboBox::currentIndexChanged, this, &MyClass::on_editComboIndexChange);
         auto a = new EsTableWidget(5, 6);
         auto let = new EsLineEdit();
         connect(btn1, SIGNAL(clicked()), SLOT(on_btn1_clicked()));
@@ -134,6 +135,7 @@ protected:
 public:
     Q_SLOT void on_btn2_clicked()
     {
+        qDebug() << editCombox->currentIndex();
         // auto a = QVariant::fromValue(Es::Theme::Theme_DARK);
         // esConfig.setValue(&EsConfig::themeMode, a);
         esConfig.toMap(true);
@@ -159,6 +161,11 @@ public:
     Q_SLOT void on_themeChanged()
     {
         qDebug() << "主题变化";
+    }
+
+    Q_SLOT void on_editComboIndexChange(int idx)
+    {
+        qDebug() << idx;
     }
 
 
@@ -225,7 +232,8 @@ public:
                 auto item = new QTableWidgetItem(songInfos[i][j]);
                 if (i == 1 && j == 1)
                 {
-                    auto itemCombo = new EsTableWidgetComboItem(QStringList{"item1", "item2", "item3"}, "item3");
+                    auto itemCombo = new EsTableWidgetComboItem();
+                    itemCombo->addOptions(QStringList{"item1", "item2", "item3"});
                     itemCombo->setPlaceholderText("测试");
                     // itemCombo->setEditable(true);
                     tableView->setItem(i, j, itemCombo);
@@ -233,9 +241,10 @@ public:
                 }
                 if (i == 1 && j == 2)
                 {
-                    auto itemCombo = new EsTableWidgetComboItem(QStringList{"item1", "item2", "item3"});
+                    auto itemCombo = new EsTableWidgetComboItem();
+                    itemCombo->addOptions(QStringList{"item1", "item2", "item3"});
                     itemCombo->setPlaceholderText("测试");
-                    itemCombo->setEditable(true);
+                    itemCombo->setEditableEnabled(true);
                     tableView->setItem(i, j, itemCombo);
                     continue;
                 }
@@ -250,9 +259,9 @@ public:
     }
     Q_SLOT void on_btn_clickwed()
     {
-        auto item = (EsTableWidgetComboItem*)tableView->item(1,1);
+        auto item = (EsTableWidgetComboItem*)tableView->item(1,2);
         qDebug()<< "index: " << item->currentIndex();
-        item->disableOption(1);
+        item->setOptionEnabled(1, false);
     }
 private:
     EsTableWidget* tableView;

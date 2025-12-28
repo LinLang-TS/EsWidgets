@@ -142,7 +142,16 @@ private:
     template <typename T>
     void initComboBox(T combo,  const EsTableWidgetComboItemData& cfg, const QString& itemText) const
     {
-        combo->addItems(cfg.options);
+        for (int i = 0; i < cfg.options.size(); ++i)
+        {
+            auto option = cfg.options[i];
+            combo->addItem(option->text, option->getIcon(), option->userData);
+            // 当前选中项同步;
+            option->text == itemText ? combo->setCurrentIndex(i) : combo->setCurrentIndex(-1);
+
+            // 禁用选项
+            if (!option->isEnabled) combo->setItemEnabled(i, false);
+        }
 
         if (cfg.editable)
         {
@@ -160,15 +169,6 @@ private:
             combo->setMaxVisibleItems(cfg.maxVisibleItems);
         }
 
-        // 当前选中项同步;
-        int indexToSelect = cfg.options.indexOf(itemText);
-        combo->setCurrentIndex(indexToSelect);
-
-        // 禁用选项
-        for (int idx : cfg.disabledIndexes)
-        {
-            combo->setItemEnabled(idx, false);
-        }
     }
 };
 

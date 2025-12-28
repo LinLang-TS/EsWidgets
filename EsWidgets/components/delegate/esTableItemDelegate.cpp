@@ -74,23 +74,10 @@ QWidget* EsTableItemDelegate::createEditor(QWidget* parent, const QStyleOptionVi
     const QModelIndex& index) const
 {
 
-    // EsComboBox 单元格
-    if (auto var = index.data(Es::ComboOptionsRole); var.isValid())
-    {
-        // 禁止进入编辑态
-        if (var.value<EsTableWidgetComboItemData>().editable == false) return nullptr;
+    // EsComboBox单元格: 跳过
+    if (auto var = index.data(Es::ComboOptionsRole); var.isValid()) return nullptr;
 
-        // 创建 EsEditableComboBox
-        const auto cfg = var.value<EsTableWidgetComboItemData>();
-
-        auto editableCombo = new EsEditableComboBox(parent);
-        initComboBox(editableCombo, cfg, option.text);
-        return editableCombo;
-
-    }
-
-
-    // 普通文本单元格：使用 EsLineEdit 编辑
+    // 普通文本单元格: 使用 EsLineEdit 编辑
     auto lineEdit = new EsLineEdit(parent);
     lineEdit->setProperty("transparent", false);
     lineEdit->setStyle(QApplication::style());
@@ -100,7 +87,7 @@ QWidget* EsTableItemDelegate::createEditor(QWidget* parent, const QStyleOptionVi
 }
 
 void EsTableItemDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option,
-                                             const QModelIndex& index) const
+                                               const QModelIndex& index) const
 {
     QRect rect = option.rect;
     int y = rect.top() + (rect.height() - editor->height()) / 2;
@@ -339,7 +326,6 @@ void EsTableItemDelegate::_drawCheckBox(QPainter* painter, const QStyleOptionVie
 bool EsTableItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option,
     const QModelIndex& index)
 {
-
     // 是否为 ComboBox Item
     const QVariant var = index.data(Es::ComboOptionsRole);
     if (!var.isValid() || var.isNull())
@@ -348,59 +334,88 @@ bool EsTableItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, 
     }
 
 
-    const auto cfg = var.value<EsTableWidgetComboItemData>();
+    auto cfg = var.value<EsTableWidgetComboItemData>();
 
-    // 如果 combo单元格 可编辑, 就走 createEditor 方法创建 editableComboBox
-    // 返回false和调用基类差不多, 但是如果表格里有 checkbox , 返回false就无法切换他的选中状态;
-    // 但是上面已经判断了他是combobox单元格, 没checkbox, 所以直接返回false
-    if (cfg.editable) return false;
-
-    if (event->type() == QEvent::MouseButtonRelease)
+    // combo单元格可编辑(双击)
+    if (cfg.editable)
     {
-
-        auto* me = dynamic_cast<QMouseEvent*>(event);
-        if (me->button() == Qt::LeftButton)
+        if (event->type() == QEvent::MouseButtonDblClick)
         {
-
             if (cfg.options.isEmpty()) return false;
 
             auto* view = qobject_cast<QAbstractItemView*>(parent());
             if (!view) return false;
 
-            // 创建 ComboBox
-            auto* combo = new EsComboBox(view->viewport()); // 必须传 view->viewport(), 直接传parent()会显示在上一行的单元格
-            initComboBox(combo, cfg, index.data().toString()); // 这个事件里option还没填充具体数据, 所以要从index里取文本
+            auto editableCombo = new EsEditableComboBox(view->viewport()); // 必须传 view->viewport(), 直接传parent()会显示在上一行的单元格
+            QString itemText = index.data().toString(); // 取当前单元格文本; 这个事件里option参数还没填充具体数据, 所以要从index里取文本
+            initComboBox(editableCombo, cfg, itemText);
+            editableCombo->setFocus();
+            editableCombo->setText(itemText);
 
 
-            // 选择后写回 Model
-            connect(combo, &EsComboBox::activated, combo, [model, index, combo](int idx){
-                    model->setData(index, combo->itemText(idx), Qt::DisplayRole);
-                    combo->deleteLater();
-                });
-
-            // 关闭选择框后销毁
-            if (combo->dropMenu)
+            connect(editableCombo, &EsEditableComboBox::editingFinished, [model, index, editableCombo, cfg]
             {
-                connect(combo->dropMenu, &EsRoundMenu::closedSignal, combo, &QObject::deleteLater);
-            }
+                // 避雷: 失去焦点后也会触发该信号; 当我点击option时, lineEdit失去焦点, 会触发一个空的完成, 导致直接执行删除combo;
+                // 所以这里判断如果失去焦点 且 下拉菜单对象不为null(正在显示), 就过滤掉
+                if (!editableCombo->hasFocus() && editableCombo->dropMenu) return;
 
-            // 单击时显示combo的方案; 目前使用的方案是单击时只显示选择框
-            // QString originalText = index.data().toString();
-            // model->setData(index, QString(), Qt::DisplayRole);
-            // connect(combo->dropMenu, &EsRoundMenu::closedSignal, combo, [model, index, originalText]()
-            // {
-            //     if (index.data(Qt::DisplayRole).toString().isEmpty())
-            //         model->setData(index, originalText, Qt::DisplayRole);
-            // });
 
+                auto tmpCfg = cfg; // 只能拷贝一份, []里捕获的都是const，没办法修改里面的值
+                tmpCfg.currentIndex = editableCombo->currentIndex();
+                model->setData(index, editableCombo->currentText(), Qt::DisplayRole); // 设置单元格文本
+                model->setData(index, QVariant::fromValue(tmpCfg), Es::ItemDataRole::ComboOptionsRole);
+                editableCombo->deleteLater();
+            });
             // 定位并弹出
-            combo->setGeometry(option.rect);
-            // combo->show();
-            combo->toggleComboMenu();
+            editableCombo->setGeometry(option.rect);
+            editableCombo->show();
             return true;
-
         }
+
+        return false;
     }
+
+    // combo单元格不可编辑(单击)
+    if (event->type() == QEvent::MouseButtonRelease)
+    {
+        auto* me = dynamic_cast<QMouseEvent*>(event);
+        if (me->button() != Qt::LeftButton) return false;
+        if (cfg.options.isEmpty()) return false;
+
+        auto* view = qobject_cast<QAbstractItemView*>(parent());
+        if (!view) return false;
+
+        // 创建 ComboBox
+        auto* combo = new EsComboBox(view->viewport());
+        auto itemText = index.data().toString();
+        initComboBox(combo, cfg, itemText);
+        // 选择后写回 Model
+        connect(combo, &EsComboBox::currentIndexChanged, [model, index, combo, cfg](int idx){
+                auto tmpCfg = cfg;
+                tmpCfg.currentIndex = idx;
+                model->setData(index, combo->itemText(idx), Qt::DisplayRole);
+                model->setData(index, QVariant::fromValue(tmpCfg), Es::ItemDataRole::ComboOptionsRole);
+                combo->deleteLater();
+            });
+
+        // 关闭下拉菜单后销毁
+        if (combo->dropMenu)
+        {
+            connect(combo->dropMenu, &EsRoundMenu::closedSignal, &QObject::deleteLater);
+        }
+
+        // 目前使用的方案是单击时只显示下拉菜单
+        // 单击时显示combo的时, 需要先清空单元格文本(因为combo的背景是有一丢丢透明 会穿透文本);
+        // 因为paint里绘制了下箭头的icon, 也会穿透, 如果显示combo会看着有2个下箭头, 这里我就不处理了, 直接不显示combo
+        // model->setData(index, QString(), Qt::DisplayRole);
+
+        // 定位并弹出
+        combo->setGeometry(option.rect);
+        // combo->show();
+        combo->toggleComboMenu();
+        return true;
+    }
+
     return QStyledItemDelegate::editorEvent(event, model, option, index);
 }
 

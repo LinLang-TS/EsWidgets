@@ -16,97 +16,303 @@ EsTableWidgetComboItem::EsTableWidgetComboItem()
     setComboBoxData(EsTableWidgetComboItemData());
 }
 
-EsTableWidgetComboItem::EsTableWidgetComboItem(const QStringList& options, const QString& defaultText)
-    : QTableWidgetItem(defaultText)
-{
-    EsTableWidgetComboItemData cfg;
-    cfg.options = options;
 
-    if (!defaultText.isEmpty())
-    {
-        setText(defaultText);
-        cfg.currentIndex = options.indexOf(defaultText);
-    }
 
-    setComboBoxData(cfg);
-}
-
-void EsTableWidgetComboItem::setOptions(const QStringList& options, const QString& defaultText)
+void EsTableWidgetComboItem::addOption(const QString& text, const QVariant& icon, const QVariant& userData)
 {
     EsTableWidgetComboItemData cfg = comboBoxData();
+    auto item = new EsComboItem(text, icon, userData);
+    cfg.options.append(item);
 
-    cfg.options = options;
-
-    if (!defaultText.isEmpty())
+    if (cfg.options.size() == 1)
     {
-        cfg.currentIndex = options.indexOf(defaultText);
-        setText(defaultText);
+        setCurrentIndex(0);
     }
-    else
-    {
-        // 如果当前文本仍然合法，保持当前选中
-        const int idx = options.indexOf(text());
-        cfg.currentIndex = idx;
-        if (idx < 0)
-        {
-            cfg.currentIndex = -1;
-            setText(QString());
-        }
-    }
-
     setComboBoxData(cfg);
 }
 
-QStringList EsTableWidgetComboItem::options() const
+void EsTableWidgetComboItem::addOptions(const QStringList& texts)
 {
-    return comboBoxData().options;
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    for (const auto& text : texts) {
+        addOption(text);
+    }
 }
 
-QString EsTableWidgetComboItem::currentText() const
+void EsTableWidgetComboItem::removeOption(int index)
 {
-    return text(); // 由于选中comboBox的选项后，会把数据更新到单元格上，所以直接返回文本
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (index < 0 || index >= cfg.options.size()) {
+        return;
+    }
+
+    delete cfg.options.takeAt(index);
+
+    if (index < currentIndex())
+    {
+        setCurrentIndex(currentIndex() - 1);
+    }
+    else if (index == currentIndex())
+    {
+        if (index > 0)
+        {
+            setCurrentIndex(currentIndex() - 1);
+        }
+        else
+        {
+            setText(optionText(0));
+            // emit currentTextChanged(currentText());
+            // emit currentIndexChanged(0);
+        }
+    }
+    if (count() == 0) clear();
+    setComboBoxData(cfg);
 }
 
 int EsTableWidgetComboItem::currentIndex() const
 {
     const EsTableWidgetComboItemData& cfg = comboBoxData();
-    if (cfg.currentIndex >= 0)
-    {
-        return cfg.currentIndex;
-    }
-    return cfg.options.indexOf(text());
+    return cfg.currentIndex;
 }
 
-void EsTableWidgetComboItem::disableOption(int index)
+void EsTableWidgetComboItem::setCurrentIndex(int index)
 {
-    if (index < 0)
-        return;
-
     EsTableWidgetComboItemData cfg = comboBoxData();
-    cfg.disabledIndexes.insert(index);
+    if (index >= count() || index == currentIndex()) return;
+
+    if (index < 0)
+    {
+        cfg.currentIndex = -1;
+        setText("");
+        setPlaceholderText(cfg.placeholderText);
+    }
+    else
+    {
+        cfg.currentIndex = index;
+        setText(cfg.options[index]->text);
+    }
     setComboBoxData(cfg);
 }
 
-QSet<int> EsTableWidgetComboItem::disabledOptions() const
+
+QString EsTableWidgetComboItem::currentText() const
 {
-    return comboBoxData().disabledIndexes;
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (currentIndex() < 0 || currentIndex() >= cfg.options.size()) {
+        return {};
+    }
+    return cfg.options[currentIndex()]->text;
 }
 
-// 设置ComboBox为可编辑
-void EsTableWidgetComboItem::setEditable(bool editable)
+
+
+QVariant EsTableWidgetComboItem::currentData() const
 {
-    EsTableWidgetComboItemData data = comboBoxData();
-    data.editable = editable;
-    setComboBoxData(data);
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (!(currentIndex() >= 0 && currentIndex() < cfg.options.size())) {
+        return {};
+    }
+
+    return cfg.options[currentIndex()]->userData;
 }
+
+void EsTableWidgetComboItem::setCurrentText(const QString& text)
+{
+    if (text == currentText())
+    {
+        return;
+    }
+
+    int index = findText(text);
+    if (index >= 0)
+    {
+        setCurrentIndex(index);
+    }
+}
+
+void EsTableWidgetComboItem::setOptionText(int index, const QString& text)
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (index < 0 || index >= cfg.options.size())
+    {
+        return;
+    }
+
+    cfg.options[index]->text = text;
+    if (currentIndex() == index)
+    {
+        setText(text);
+    }
+    setComboBoxData(cfg);
+}
+
+QVariant EsTableWidgetComboItem::optionData(int index) const
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (index < 0 || index >= cfg.options.size())
+    {
+        return {};
+    }
+
+    return cfg.options[index]->userData;
+}
+
+QString EsTableWidgetComboItem::optionText(int index) const
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (index < 0 || index >= cfg.options.size())
+    {
+        return QString();
+    }
+
+    return cfg.options[index]->text;
+}
+
+QIcon EsTableWidgetComboItem::optionIcon(int index) const
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (index < 0 || index >= cfg.options.size())
+    {
+        return QIcon();
+    }
+
+    return cfg.options[index]->getIcon();
+}
+
+void EsTableWidgetComboItem::setOptionData(int index, const QVariant& value)
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (index >= 0 && index < cfg.options.size())
+    {
+        cfg.options[index]->userData = value;
+    }
+    setComboBoxData(cfg);
+}
+void EsTableWidgetComboItem::setOptionIcon(int index, const QIcon& icon)
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (index >= 0 && index < cfg.options.size())
+    {
+        cfg.options[index]->setIcon(icon);
+    }
+    setComboBoxData(cfg);
+}
+
+void EsTableWidgetComboItem::setOptionEnabled(int index, bool isEnabled)
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (index >= 0 && index < cfg.options.size())
+    {
+        cfg.options[index]->isEnabled = isEnabled;
+    }
+    setComboBoxData(cfg);
+}
+
+int EsTableWidgetComboItem::findData(const QVariant& data) const
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    for (int i = 0; i < cfg.options.size(); ++i)
+    {
+        if (cfg.options[i]->userData == data)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int EsTableWidgetComboItem::findText(const QString& text) const
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    for (int i = 0; i < cfg.options.size(); ++i)
+    {
+        if (cfg.options[i]->text == text)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void EsTableWidgetComboItem::clear()
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    if (currentIndex() >= 0)
+    {
+        setText("");
+    }
+    while (!cfg.options.isEmpty()) {
+        delete cfg.options.takeLast();
+    }
+    cfg.currentIndex = -1;
+    setComboBoxData(cfg);
+}
+
+int EsTableWidgetComboItem::count() const
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    return cfg.options.size();
+}
+
+
+
+void EsTableWidgetComboItem::insertOption(int index, const QString& text, const QVariant& icon, const QVariant& userData)
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    auto item = new EsComboItem(text, icon, userData);
+    cfg.options.insert(index, item);
+    setComboBoxData(cfg);
+
+    if (index <= currentIndex())
+    {
+        setCurrentIndex(currentIndex() + 1);
+    }
+}
+
+void EsTableWidgetComboItem::insertOptions(int index, const QList<QString>& texts)
+{
+    EsTableWidgetComboItemData cfg = comboBoxData();
+    int pos = index;
+    for (const auto& text : texts)
+    {
+        auto item = new EsComboItem(text);
+        cfg.options.insert(cfg.options.begin() + pos, item);
+        ++pos;
+    }
+    setComboBoxData(cfg);
+
+    if (index <= currentIndex())
+    {
+        setCurrentIndex(currentIndex() + pos - index);
+    }
+}
+
+
 
 // 设置最大显示项数
-void EsTableWidgetComboItem::setMaxVisibleItems(int count)
+void EsTableWidgetComboItem::setMaxVisibleOptions(int count)
 {
     EsTableWidgetComboItemData data = comboBoxData();
     data.maxVisibleItems = count;
     setComboBoxData(data);
 }
+
+// 最大显示项数
+int EsTableWidgetComboItem::maxVisibleOptions() const
+{
+    const EsTableWidgetComboItemData& data = comboBoxData();
+    return data.maxVisibleItems;
+}
+
+
+// 设置ComboBox为可编辑
+void EsTableWidgetComboItem::setEditableEnabled(bool isEnabled)
+{
+    EsTableWidgetComboItemData data = comboBoxData();
+    data.editable = isEnabled;
+    setComboBoxData(data);
+}
+
 
 // 设置占位符文本
 void EsTableWidgetComboItem::setPlaceholderText(const QString& text)
