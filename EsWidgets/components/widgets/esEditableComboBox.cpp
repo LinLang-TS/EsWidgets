@@ -244,7 +244,7 @@ void EsEditableComboBox::setItemIcon(int index, const QIcon& icon)
     Q_D(EsEditableComboBox);
     if (index >= 0 && index < d->items.size())
     {
-        d->items[index]->getIcon() = icon;
+        d->items[index]->setIcon(icon);
     }
 }
 
